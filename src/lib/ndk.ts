@@ -1,4 +1,4 @@
-import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
+import { NDKSvelte } from '@nostr-dev-kit/svelte';
 
 // Default relays for the application
 const DEFAULT_RELAYS = [

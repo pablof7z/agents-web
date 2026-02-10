@@ -2,6 +2,7 @@
 	import { ndk, COMMENT_KIND } from '$lib/ndk';
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { NDKEvent as NDKEventClass } from '@nostr-dev-kit/ndk';
+	import { User } from '$lib/registry/ui/user';
 
 	interface Props {
 		/** The parent event to show/add comments for */
@@ -20,8 +21,7 @@
 
 	// Subscribe to comments for this event (NIP-22 kind 1111)
 	// Comments reference the parent with 'e' tag
-	// Using storeSubscribe for reactive Svelte store
-	const commentsSubscription = ndk.storeSubscribe(
+	const commentsSubscription = ndk.$subscribe(
 		{
 			kinds: [COMMENT_KIND as number],
 			'#e': [parentEvent.id]
@@ -31,7 +31,7 @@
 
 	// Sort comments by date (newest first)
 	const sortedComments = $derived(
-		[...$commentsSubscription].sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
+		[...commentsSubscription.events].sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
 	);
 
 	async function submitComment() {
@@ -41,25 +41,14 @@
 		submitError = null;
 
 		try {
-			// Create a new comment event using NDK Svelte's NDKEvent
+			// Create a new comment event
 			const commentEvent = new NDKEventClass(ndk);
 			commentEvent.kind = COMMENT_KIND;
 			commentEvent.content = newComment.trim();
 
-			// Set up NIP-22 tags manually for comment
-			// Root reference (uppercase tags point to the root)
-			commentEvent.tags.push(['E', parentEvent.id]);
-			commentEvent.tags.push(['K', String(parentEvent.kind)]);
-			if (parentEvent.pubkey) {
-				commentEvent.tags.push(['P', parentEvent.pubkey]);
-			}
-
-			// Parent reference (lowercase tags point to immediate parent)
-			commentEvent.tags.push(['e', parentEvent.id]);
-			commentEvent.tags.push(['k', String(parentEvent.kind)]);
-			if (parentEvent.pubkey) {
-				commentEvent.tags.push(['p', parentEvent.pubkey]);
-			}
+			// Use event.reply() for proper NIP-22 tag construction
+			// This handles the dual-reference system automatically (uppercase for root, lowercase for parent)
+			await commentEvent.reply(parentEvent, true);
 
 			// Publish the comment
 			await commentEvent.publish();
@@ -107,7 +96,12 @@
 		{#each sortedComments as comment (comment.id)}
 			<article class="comment">
 				<header>
-					<span class="author">{comment.author.npub.slice(0, 12)}...</span>
+					<User.Root {ndk} pubkey={comment.pubkey}>
+						<div class="author-info">
+							<User.Avatar class="avatar" />
+							<User.Name class="author" />
+						</div>
+					</User.Root>
 					<time datetime={new Date((comment.created_at ?? 0) * 1000).toISOString()}>
 						{formatDate(comment.created_at)}
 					</time>
@@ -214,7 +208,18 @@
 		margin-bottom: 0.5rem;
 	}
 
-	.author {
+	.author-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.comment :global(.avatar) {
+		width: 24px;
+		height: 24px;
+	}
+
+	.comment :global(.author) {
 		font-size: 0.8rem;
 		font-weight: 500;
 		color: #6366f1;
