@@ -2,9 +2,7 @@ import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
 
 // Default relays for the application
 const DEFAULT_RELAYS = [
-	'wss://relay.damus.io',
-	'wss://nos.lol',
-	'wss://relay.nostr.band'
+	'wss://tenex.chat'
 ];
 
 // Create NDK Svelte instance - this provides reactive stores
