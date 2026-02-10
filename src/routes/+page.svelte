@@ -51,7 +51,7 @@
 			class:active={activeTab === 'agents'}
 			onclick={() => (activeTab = 'agents')}
 		>
-			Agents ({$agentSubscription.length})
+			Agent Definitions ({$agentSubscription.length})
 		</button>
 		<button
 			class="tab"
