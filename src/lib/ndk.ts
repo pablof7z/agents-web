@@ -9,8 +9,7 @@ const DEFAULT_RELAYS = [
 // Note: NDK Svelte handles browser-only initialization internally
 export const ndk = new NDKSvelte({
 	explicitRelayUrls: DEFAULT_RELAYS,
-	autoConnectUserRelays: true,
-	autoFetchUserMutelist: true
+	autoConnectUserRelays: true
 });
 
 // Connect to relays immediately when module loads (browser only)

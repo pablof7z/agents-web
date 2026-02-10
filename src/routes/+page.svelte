@@ -5,18 +5,16 @@
 	import Comments from '$lib/components/Comments.svelte';
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 
-	// Create reactive store subscription for agent definitions (kind 4199)
-	// Using storeSubscribe for reactive Svelte stores with real-time updates
-	const agentSubscription = ndk.storeSubscribe(
-		{ kinds: [AGENT_DEFINITION_KIND as number] },
-		{ closeOnEose: false }
-	);
+	// Create reactive subscription for agent definitions (kind 4199)
+	// NDK 3.0 $subscribe takes a callback function returning config
+	const agentSubscription = ndk.$subscribe(() => ({
+		filters: [{ kinds: [AGENT_DEFINITION_KIND as number] }]
+	}));
 
-	// Create reactive store subscription for agent lessons (kind 4129)
-	const lessonSubscription = ndk.storeSubscribe(
-		{ kinds: [AGENT_LESSON_KIND as number] },
-		{ closeOnEose: false }
-	);
+	// Create reactive subscription for agent lessons (kind 4129)
+	const lessonSubscription = ndk.$subscribe(() => ({
+		filters: [{ kinds: [AGENT_LESSON_KIND as number] }]
+	}));
 
 	// Reactive state for selected items
 	let selectedAgent = $state<NDKEvent | null>(null);
@@ -51,40 +49,40 @@
 			class:active={activeTab === 'agents'}
 			onclick={() => (activeTab = 'agents')}
 		>
-			Agent Definitions ({$agentSubscription.length})
+			Agent Definitions ({agentSubscription.events.length})
 		</button>
 		<button
 			class="tab"
 			class:active={activeTab === 'lessons'}
 			onclick={() => (activeTab = 'lessons')}
 		>
-			Lessons ({$lessonSubscription.length})
+			Lessons ({lessonSubscription.events.length})
 		</button>
 	</nav>
 
 	<main>
 		{#if activeTab === 'agents'}
-			{#if $agentSubscription.length === 0}
+			{#if agentSubscription.events.length === 0}
 				<div class="empty-state">
 					<p>Loading agents...</p>
 					<p class="hint">Searching for kind {AGENT_DEFINITION_KIND} events</p>
 				</div>
 			{:else}
 				<div class="grid agents-grid">
-					{#each $agentSubscription as event (event.id)}
+					{#each agentSubscription.events as event (event.id)}
 						<AgentCard {event} onclick={() => selectAgent(event)} />
 					{/each}
 				</div>
 			{/if}
 		{:else}
-			{#if $lessonSubscription.length === 0}
+			{#if lessonSubscription.events.length === 0}
 				<div class="empty-state">
 					<p>Loading lessons...</p>
 					<p class="hint">Searching for kind {AGENT_LESSON_KIND} events</p>
 				</div>
 			{:else}
 				<div class="grid lessons-grid">
-					{#each $lessonSubscription as event (event.id)}
+					{#each lessonSubscription.events as event (event.id)}
 						<LessonCard {event} onclick={() => selectLesson(event)} />
 					{/each}
 				</div>
