@@ -36,8 +36,10 @@
 	<footer>
 		<div class="author">
 			<User.Root {ndk} pubkey={authorPubkey}>
-				<User.Avatar class="author-avatar" />
-				<User.Name class="author-name" />
+				<span class="avatar-wrapper">
+					<User.Avatar />
+				</span>
+				<User.Name />
 			</User.Root>
 		</div>
 		<time datetime={new Date(event.created_at! * 1000).toISOString()}>
@@ -122,9 +124,16 @@
 		gap: 0.5rem;
 	}
 
-	.author :global([data-user-avatar]) {
+	.avatar-wrapper {
+		display: block;
 		width: 24px;
 		height: 24px;
+		flex-shrink: 0;
+	}
+
+	.avatar-wrapper :global([data-user-avatar]) {
+		width: 100%;
+		height: 100%;
 		font-size: 0.625rem;
 	}
 
