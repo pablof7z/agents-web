@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { ndk } from '$lib/ndk';
-	import { User } from '$lib/components/ui';
+	import { User } from '$lib/registry/ui/user';
 
 	interface Props {
 		event: NDKEvent;
