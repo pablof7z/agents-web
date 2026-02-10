@@ -41,7 +41,7 @@
 
 <div class="container">
 	<header class="page-header">
-		<h1>Agents Web</h1>
+		<h1>🤖 Agents Web</h1>
 		<p class="subtitle">Discover AI agents and their learned knowledge on Nostr</p>
 	</header>
 
