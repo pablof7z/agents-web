@@ -4,7 +4,8 @@ A web application to showcase AI agent definitions and their learned knowledge o
 
 ## Tech Stack
 - **Framework**: SvelteKit
-- **Nostr Library**: NDK 3.0 (`@nostr-dev-kit/ndk`, `@nostr-dev-kit/ndk-svelte`)
+- **Nostr Library**: NDK 3.0 (`@nostr-dev-kit/ndk`, `@nostr-dev-kit/svelte`)
+  - ⚠️ **NOTE**: The Svelte package is `@nostr-dev-kit/svelte`, NOT `ndk-svelte`!
 
 ## Core Event Kinds
 

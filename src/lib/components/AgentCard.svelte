@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
+	import { ndk } from '$lib/ndk';
+	import { User } from '$lib/components/ui';
 
 	interface Props {
 		event: NDKEvent;
@@ -13,6 +15,9 @@
 	const role = $derived(event.tagValue('role') ?? 'No role defined');
 	const description = $derived(event.tagValue('description') ?? '');
 	const version = $derived(event.tagValue('ver') ?? '1.0');
+
+	// Get author pubkey from the event
+	const authorPubkey = $derived(event.pubkey);
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
@@ -29,6 +34,12 @@
 	{/if}
 
 	<footer>
+		<div class="author">
+			<User.Root {ndk} pubkey={authorPubkey}>
+				<User.Avatar class="author-avatar" />
+				<User.Name class="author-name" />
+			</User.Root>
+		</div>
 		<time datetime={new Date(event.created_at! * 1000).toISOString()}>
 			{new Date(event.created_at! * 1000).toLocaleDateString()}
 		</time>
@@ -94,6 +105,33 @@
 	footer {
 		border-top: 1px solid #f3f4f6;
 		padding-top: 0.75rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.author {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.author :global([data-user-root]) {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.author :global([data-user-avatar]) {
+		width: 24px;
+		height: 24px;
+		font-size: 0.625rem;
+	}
+
+	.author :global([data-user-name]) {
+		font-size: 0.8rem;
+		color: #4b5563;
+		font-weight: 500;
 	}
 
 	time {
