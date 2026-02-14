@@ -91,7 +91,9 @@
 				<header>
 					<User.Root {ndk} pubkey={comment.pubkey}>
 						<div class="author-info">
-							<User.Avatar class="w-6 h-6 text-[10px]" />
+							<div class="avatar-wrapper">
+								<User.Avatar />
+							</div>
 							<User.Name class="author" />
 						</div>
 					</User.Root>
@@ -205,6 +207,21 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+	}
+
+	.avatar-wrapper {
+		width: 24px;
+		height: 24px;
+		flex-shrink: 0;
+	}
+
+	.avatar-wrapper :global([data-user-avatar]) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.avatar-wrapper :global([data-user-avatar] span) {
+		font-size: 10px;
 	}
 
 	.comment :global(.author) {
