@@ -91,7 +91,7 @@
 				<header>
 					<User.Root {ndk} pubkey={comment.pubkey}>
 						<div class="author-info">
-							<User.Avatar class="avatar" />
+							<User.Avatar class="w-6 h-6 text-[10px]" />
 							<User.Name class="author" />
 						</div>
 					</User.Root>
@@ -205,11 +205,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-	}
-
-	.comment :global(.avatar) {
-		width: 24px;
-		height: 24px;
 	}
 
 	.comment :global(.author) {

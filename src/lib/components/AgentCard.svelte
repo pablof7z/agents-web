@@ -36,9 +36,7 @@
 	<footer>
 		<div class="author">
 			<User.Root {ndk} pubkey={authorPubkey}>
-				<span class="avatar-wrapper">
-					<User.Avatar />
-				</span>
+				<User.Avatar class="w-6 h-6 text-[10px]" />
 				<User.Name />
 			</User.Root>
 		</div>
@@ -122,19 +120,6 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-	}
-
-	.avatar-wrapper {
-		display: block;
-		width: 24px;
-		height: 24px;
-		flex-shrink: 0;
-	}
-
-	.avatar-wrapper :global([data-user-avatar]) {
-		width: 100%;
-		height: 100%;
-		font-size: 0.625rem;
 	}
 
 	.author :global([data-user-name]) {

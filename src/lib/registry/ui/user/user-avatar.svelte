@@ -47,7 +47,7 @@
 
 <div
 	class={cn(
-		'relative overflow-hidden rounded-full bg-gradient-to-br flex items-center justify-center',
+		'relative overflow-hidden rounded-full bg-gradient-to-br flex items-center justify-center w-8 h-8',
 		className
 	)}
 	style="background: linear-gradient(135deg, {gradientColors[0]}, {gradientColors[1]})"
