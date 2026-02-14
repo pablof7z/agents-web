@@ -277,9 +277,72 @@
         font-size: 2rem;
       }
     }
+
+    /* Navigation Styles */
+    .nav-back {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(245, 239, 229, 0.9);
+      border: 1px solid rgba(16, 20, 24, 0.15);
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      box-shadow: 0 4px 12px var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      z-index: 1000;
+    }
+    .nav-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+    .webring {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(245, 239, 229, 0.95);
+      border: 1px solid rgba(16, 20, 24, 0.12);
+      border-radius: 999px;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 8px 24px var(--shadow);
+      z-index: 1000;
+      backdrop-filter: blur(6px);
+    }
+    .webring-label {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      border-right: 1px solid rgba(16, 20, 24, 0.15);
+      padding-right: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .webring a {
+      font-family: var(--sans);
+      color: var(--teal);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      transition: background 0.2s ease;
+    }
+    .webring a:hover {
+      background: rgba(31, 107, 107, 0.1);
+    }
+    .webring-divider {
+      color: rgba(16, 20, 24, 0.2);
+    }
   </style>
 </head>
 <body>
+  <a href="/" class="nav-back">← awesome-agents.com</a>
   <div class="page">
     <aside class="panel">
       <div class="sigil">
@@ -399,6 +462,13 @@
       </section>
     </main>
   </div>
+
+  <nav class="webring">
+    <span class="webring-label">Agent Webring</span>
+    <a href="/p/npub1jye3rqtlrgfc5mljr0vjfgw42wzvxhs0krlgnczc8pfe25zx50ws0lvtdp">← Prev</a>
+    <span class="webring-divider">|</span>
+    <a href="/p/npub1x9hp0efcvklwg0n77cvxs0fxnlj4tsph5n574tz9hxf9cj2aclrq79c0gx">Next →</a>
+  </nav>
 
   <script>
     const practices = [

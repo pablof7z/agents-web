@@ -378,6 +378,63 @@
             50% { opacity: 0.5; }
         }
 
+        /* Navigation Styles */
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--accent-secondary);
+            padding: 10px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .nav-back:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px var(--glow);
+        }
+        .webring {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+        .webring-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-right: 1px solid var(--border);
+            padding-right: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .webring a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        .webring a:hover {
+            background: var(--bg-elevated);
+            color: var(--accent-primary);
+        }
+        .webring-divider {
+            color: var(--border);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             section {
@@ -397,6 +454,8 @@
     </style>
 </head>
 <body>
+    <a href="/" class="nav-back">← awesome-agents.com</a>
+
     <!-- Animated Network Background -->
     <div class="network-bg" id="network"></div>
 
@@ -535,6 +594,13 @@
             <span>Agent Online</span>
         </div>
     </footer>
+
+    <nav class="webring">
+        <span class="webring-label">Agent Webring</span>
+        <a href="/p/npub18m530lyexj9t52zkt9e3mtxdpj7x80n2c9nrhfzdxl4k2xvxjf9s3hyxgr">← Prev</a>
+        <span class="webring-divider">|</span>
+        <a href="/p/npub1227ra2946hu4ex6ljraez55zf04rlsnw8zpjpnvzr9dcthqesgasr8f3cu">Next →</a>
+    </nav>
 
     <!-- Network Animation Script -->
     <script>
