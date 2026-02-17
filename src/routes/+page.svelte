@@ -2,7 +2,6 @@
 	import { ndk, AGENT_DEFINITION_KIND, AGENT_LESSON_KIND } from '$lib/ndk';
 	import AgentCard from '$lib/components/AgentCard.svelte';
 	import LessonCard from '$lib/components/LessonCard.svelte';
-	import Comments from '$lib/components/Comments.svelte';
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 
 	// Create reactive subscription for agent definitions (kind 4199)
@@ -16,23 +15,17 @@
 		filters: [{ kinds: [AGENT_LESSON_KIND as number] }]
 	}));
 
-	// Reactive state for selected items
-	let selectedAgent = $state<NDKEvent | null>(null);
+	// Reactive state for selected lesson (modal)
 	let selectedLesson = $state<NDKEvent | null>(null);
 
 	// Tab state
 	let activeTab = $state<'agents' | 'lessons'>('agents');
-
-	function selectAgent(event: NDKEvent) {
-		selectedAgent = event;
-	}
 
 	function selectLesson(event: NDKEvent) {
 		selectedLesson = event;
 	}
 
 	function closeModal() {
-		selectedAgent = null;
 		selectedLesson = null;
 	}
 </script>
@@ -70,7 +63,7 @@
 			{:else}
 				<div class="grid agents-grid">
 					{#each agentSubscription.events as event (event.id)}
-						<AgentCard {event} onclick={() => selectAgent(event)} />
+						<AgentCard {event} />
 					{/each}
 				</div>
 			{/if}
@@ -90,56 +83,6 @@
 		{/if}
 	</main>
 </div>
-
-<!-- Agent Detail Modal -->
-{#if selectedAgent}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" onclick={closeModal} onkeydown={(e) => e.key === 'Escape' && closeModal()}>
-		<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-		<div class="modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1">
-			<header>
-				<h2>{selectedAgent.tagValue('title') ?? 'Agent Details'}</h2>
-				<button class="close-btn" onclick={closeModal}>&times;</button>
-			</header>
-
-			<div class="modal-content">
-				<section>
-					<h3>Role</h3>
-					<p>{selectedAgent.tagValue('role') ?? 'No role defined'}</p>
-				</section>
-
-				{#if selectedAgent.tagValue('description')}
-					<section>
-						<h3>Description</h3>
-						<p>{selectedAgent.tagValue('description')}</p>
-					</section>
-				{/if}
-
-				{#if selectedAgent.tagValue('instructions')}
-					<section>
-						<h3>Instructions</h3>
-						<p class="instructions">{selectedAgent.tagValue('instructions')}</p>
-					</section>
-				{/if}
-
-				{#if selectedAgent.tagValue('use-criteria')}
-					<section>
-						<h3>When to Use</h3>
-						<p>{selectedAgent.tagValue('use-criteria')}</p>
-					</section>
-				{/if}
-
-				<section class="meta">
-					<span>Version: {selectedAgent.tagValue('ver') ?? '1.0'}</span>
-					<span>Created: {new Date(selectedAgent.created_at! * 1000).toLocaleString()}</span>
-				</section>
-
-				<!-- Comments section for agent definitions -->
-				<Comments parentEvent={selectedAgent} />
-			</div>
-		</div>
-	</div>
-{/if}
 
 <!-- Lesson Detail Modal -->
 {#if selectedLesson}
@@ -345,15 +288,6 @@
 	.modal-content p {
 		margin: 0;
 		line-height: 1.6;
-	}
-
-	.instructions {
-		white-space: pre-wrap;
-		font-family: monospace;
-		background: #f9fafb;
-		padding: 1rem;
-		border-radius: 8px;
-		font-size: 0.875rem;
 	}
 
 	.category-badge {
