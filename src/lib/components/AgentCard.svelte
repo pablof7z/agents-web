@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { goto } from '$app/navigation';
-	import { ndk } from '$lib/ndk';
+	import { ndk, AGENT_DEFINITION_KIND } from '$lib/ndk';
 	import { User } from '$lib/registry/ui/user';
 	import { encodeNevent } from '$lib/utils/nostr';
 
@@ -35,6 +35,38 @@
 
 	// Get author pubkey from the event
 	const authorPubkey = $derived(event.pubkey);
+
+	// Build the addressable coordinate for this agent's kind:4199 event
+	// Format: "<kind>:<pubkey>:<d-tag>"
+	const agentCoordinate = $derived(() => {
+		const dTag = event.tagValue('d') ?? '';
+		return `${AGENT_DEFINITION_KIND}:${event.pubkey}:${dTag}`;
+	});
+
+	// Subscribe to kind:0 metadata events that have an `a` tag referencing this agent
+	// These represent projects the agent belongs to
+	const projectsSubscription = $derived.by(() => {
+		const coord = agentCoordinate();
+		return ndk.$subscribe(() => ({
+			filters: [{
+				kinds: [0],
+				'#a': [coord]
+			}]
+		}));
+	});
+
+	// Extract project names from the kind:0 metadata events
+	const projects = $derived.by(() => {
+		const events = projectsSubscription?.events ?? [];
+		return events.map((e: NDKEvent) => {
+			try {
+				const profile = JSON.parse(e.content || '{}');
+				return profile.name || profile.displayName || e.pubkey.slice(0, 8) + '...';
+			} catch {
+				return e.pubkey.slice(0, 8) + '...';
+			}
+		});
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
@@ -48,6 +80,14 @@
 
 	{#if description}
 		<p class="description">{description}</p>
+	{/if}
+
+	{#if projects.length > 0}
+		<div class="projects">
+			{#each projects as projectName}
+				<span class="project-badge">{projectName}</span>
+			{/each}
+		</div>
 	{/if}
 
 	<footer>
@@ -119,6 +159,24 @@
 		color: #4b5563;
 		font-size: 0.9rem;
 		line-height: 1.5;
+	}
+
+	.projects {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.project-badge {
+		font-size: 0.75rem;
+		background: #f0fdf4;
+		color: #16a34a;
+		border: 1px solid #bbf7d0;
+		padding: 0.125rem 0.5rem;
+		border-radius: 9999px;
+		font-weight: 500;
+		white-space: nowrap;
 	}
 
 	footer {
