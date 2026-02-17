@@ -47,7 +47,7 @@
 
 <div
 	class={cn(
-		'relative overflow-hidden rounded-full bg-gradient-to-br flex items-center justify-center w-8 h-8',
+		'avatar-root',
 		className
 	)}
 	style="background: linear-gradient(135deg, {gradientColors[0]}, {gradientColors[1]})"
@@ -58,7 +58,7 @@
 		{#if customFallback}
 			{@render customFallback()}
 		{:else}
-			<span class="text-white font-medium text-sm">{initials}</span>
+			<span class="avatar-fallback">{initials}</span>
 		{/if}
 	{/if}
 
@@ -68,11 +68,54 @@
 			src={imageUrl}
 			{alt}
 			class={cn(
-				'absolute inset-0 w-full h-full object-cover transition-opacity duration-200',
-				imageLoaded ? 'opacity-100' : 'opacity-0'
+				'avatar-image',
+				imageLoaded ? 'avatar-image-loaded' : 'avatar-image-hidden'
 			)}
 			onload={() => (imageLoaded = true)}
 			onerror={() => (imageError = true)}
 		/>
 	{/if}
 </div>
+
+<style>
+	.avatar-root {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		border-radius: 9999px;
+		width: 2rem;
+		height: 2rem;
+		min-width: 2rem;
+		min-height: 2rem;
+		max-width: 100%;
+		max-height: 100%;
+		flex: 0 0 auto;
+	}
+
+	.avatar-fallback {
+		color: white;
+		font-weight: 500;
+		font-size: 0.875rem;
+		line-height: 1;
+	}
+
+	.avatar-image {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transition: opacity 200ms ease;
+	}
+
+	.avatar-image-loaded {
+		opacity: 1;
+	}
+
+	.avatar-image-hidden {
+		opacity: 0;
+	}
+</style>
