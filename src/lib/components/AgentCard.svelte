@@ -1,7 +1,9 @@
 <script lang="ts">
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
+	import { goto } from '$app/navigation';
 	import { ndk } from '$lib/ndk';
 	import { User } from '$lib/registry/ui/user';
+	import { encodeNevent } from '$lib/utils/nostr';
 
 	interface Props {
 		event: NDKEvent;
@@ -9,6 +11,21 @@
 	}
 
 	let { event, onclick }: Props = $props();
+
+	// Navigate to the detail page for this agent
+	function navigateToDetail() {
+		const nevent = encodeNevent(event.id, undefined, event.pubkey, event.kind);
+		goto(`/e/${nevent}`);
+	}
+
+	// Use provided onclick or default to navigation
+	function handleClick() {
+		if (onclick) {
+			onclick();
+		} else {
+			navigateToDetail();
+		}
+	}
 
 	// Extract agent details from tags
 	const title = $derived(event.tagValue('title') ?? 'Untitled Agent');
@@ -21,7 +38,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
-<article class="agent-card" role="button" tabindex="0" {onclick} onkeydown={(e) => e.key === 'Enter' && onclick?.()}>
+<article class="agent-card" role="button" tabindex="0" onclick={handleClick} onkeydown={(e) => e.key === 'Enter' && handleClick()}>
 	<header>
 		<h2>{title}</h2>
 		<span class="version">v{version}</span>
