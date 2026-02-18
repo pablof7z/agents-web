@@ -2,8 +2,9 @@
 	import { ndk } from '$lib/ndk';
 	import { NDKNip07Signer } from '@nostr-dev-kit/ndk';
 
-	// Reactive current user from NDK Svelte
-	let currentUser = $derived(ndk.activeUser);
+	// Reactive current user from NDK Svelte session store
+	let currentUser = $derived(ndk.$currentUser);
+	let isReadOnly = $derived(currentUser ? ndk.$sessions.isReadOnly() : false);
 
 	let isLoggingIn = $state(false);
 	let loginError = $state<string | null>(null);
@@ -19,9 +20,7 @@
 
 		try {
 			const signer = new NDKNip07Signer();
-			ndk.signer = signer;
-			const user = await signer.user();
-			ndk.activeUser = user;
+			await ndk.$sessions.login(signer);
 		} catch (e) {
 			loginError = e instanceof Error ? e.message : 'Failed to login';
 		} finally {
@@ -30,8 +29,7 @@
 	}
 
 	function logout() {
-		ndk.signer = undefined;
-		ndk.activeUser = undefined;
+		ndk.$sessions.logout();
 	}
 
 	// Derive display name from profile or pubkey
@@ -54,6 +52,11 @@
 		{#if currentUser}
 			<div class="user-info">
 				<span class="user-name">{displayName()}</span>
+				{#if isReadOnly}
+					<button class="btn btn-primary" onclick={login} disabled={isLoggingIn}>
+						{isLoggingIn ? 'Connecting...' : 'Reconnect Signer'}
+					</button>
+				{/if}
 				<button class="btn btn-secondary" onclick={logout}>
 					Logout
 				</button>

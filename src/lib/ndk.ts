@@ -1,15 +1,16 @@
-import { NDKSvelte } from '@nostr-dev-kit/svelte';
+import { createNDK } from '@nostr-dev-kit/svelte';
 
 // Default relays for the application
 const DEFAULT_RELAYS = [
 	'wss://tenex.chat'
 ];
 
-// Create NDK Svelte instance - this provides reactive stores
-// Note: NDK Svelte handles browser-only initialization internally
-export const ndk = new NDKSvelte({
+// Create NDK Svelte instance with session support for auth persistence
+// session: true enables ndk.$sessions, ndk.$currentUser, and related reactive stores
+export const ndk = createNDK({
 	explicitRelayUrls: DEFAULT_RELAYS,
-	autoConnectUserRelays: true
+	autoConnectUserRelays: true,
+	session: true
 });
 
 // Connect to relays immediately when module loads (browser only)
@@ -20,10 +21,10 @@ if (typeof window !== 'undefined') {
 
 // Export stores from NDK Svelte for reactive access
 // These are automatically available from the ndk instance:
-// - ndk.pool - Relay pool with connection status
-// - ndk.sessions - Session management for multiple accounts
-// - ndk.currentUser - Currently active user
-// - ndk.wallet - Wallet integration (NIP-60)
+// - ndk.$pool - Relay pool with connection status
+// - ndk.$sessions - Session management for multiple accounts
+// - ndk.$currentUser - Currently active user
+// - ndk.$wallet - Wallet integration (NIP-60)
 
 // Agent Definition event kind (custom TENEX)
 export const AGENT_DEFINITION_KIND = 4199;

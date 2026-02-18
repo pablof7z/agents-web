@@ -11,7 +11,8 @@
 	let { parentEvent }: Props = $props();
 
 	// Get current user from NDK
-	let currentUser = $derived(ndk.activeUser);
+	let currentUser = $derived(ndk.$currentUser);
+	let canSign = $derived(currentUser ? !ndk.$sessions.isReadOnly() : false);
 
 	// State for new comment
 	let newComment = $state('');
@@ -31,7 +32,7 @@
 	);
 
 	async function submitComment() {
-		if (!newComment.trim() || !currentUser) return;
+		if (!newComment.trim() || !canSign) return;
 
 		isSubmitting = true;
 		submitError = null;
@@ -64,7 +65,7 @@
 <section class="comments-section">
 	<h3>Comments ({sortedComments.length})</h3>
 
-	{#if currentUser}
+	{#if currentUser && canSign}
 		<form class="comment-form" onsubmit={(e) => { e.preventDefault(); submitComment(); }}>
 			<textarea
 				bind:value={newComment}
@@ -81,6 +82,8 @@
 				</button>
 			</div>
 		</form>
+	{:else if currentUser}
+		<p class="login-prompt">Reconnect your signer to post comments</p>
 	{:else}
 		<p class="login-prompt">Login to add comments</p>
 	{/if}
