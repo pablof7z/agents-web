@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ndk, AGENT_DEFINITION_KIND, AGENT_LESSON_KIND } from '$lib/ndk';
-	import AgentCard from '$lib/components/AgentCard.svelte';
+	import AgentDefinitionCard from '$lib/components/AgentDefinitionCard.svelte';
 	import LessonCard from '$lib/components/LessonCard.svelte';
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
 
@@ -63,7 +63,7 @@
 			{:else}
 				<div class="grid agents-grid">
 					{#each agentSubscription.events as event (event.id)}
-						<AgentCard {event} />
+						<AgentDefinitionCard {event} />
 					{/each}
 				</div>
 			{/if}
@@ -192,7 +192,7 @@
 	}
 
 	.agents-grid {
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 	}
 
 	.lessons-grid {
