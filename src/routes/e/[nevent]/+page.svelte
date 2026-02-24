@@ -5,6 +5,7 @@
 	import { User } from '$lib/registry/ui/user';
 	import Comments from '$lib/components/Comments.svelte';
 	import type { NDKEvent } from '@nostr-dev-kit/ndk';
+	import { marked } from 'marked';
 
 	// Tab state using Svelte 5 runes
 	let activeTab = $state<'overview' | 'agents' | 'feed' | 'lessons'>('overview');
@@ -36,6 +37,10 @@
 	const useCriteria = $derived(agentEvent?.tagValue('use-criteria') ?? '');
 	const version = $derived(agentEvent?.tagValue('ver') ?? '1.0');
 	const authorPubkey = $derived(agentEvent?.pubkey ?? '');
+	const contentMarkdown = $derived(agentEvent?.content ?? '');
+	const renderedContent = $derived(
+		contentMarkdown ? (marked(contentMarkdown) as string) : ''
+	);
 
 	// Subscription for agents (kind:0 profiles with e-tag referencing this agent definition)
 	const agentsSubscription = $derived.by(() => {
@@ -168,6 +173,14 @@
 		<main class="tab-content">
 			{#if activeTab === 'overview'}
 				<div class="overview-tab">
+					{#if renderedContent}
+						<section class="content-section">
+							<div class="markdown-content">
+								{@html renderedContent}
+							</div>
+						</section>
+					{/if}
+
 					{#if instructions}
 						<section>
 							<h3>Instructions</h3>
@@ -219,18 +232,29 @@
 						<div class="agents-grid">
 							{#each agentsSubscription.events as profileEvent (profileEvent.id)}
 								{@const profile = JSON.parse(profileEvent.content || '{}')}
+								{@const projectCoords = profileEvent.getMatchingTags('a').map((t: string[]) => t[1]).filter(Boolean)}
 								<div class="agent-profile-card">
 									<User.Root {ndk} pubkey={profileEvent.pubkey}>
-										<div class="profile-avatar">
-											<User.Avatar />
-										</div>
-										<div class="profile-info">
-											<User.Name />
-											{#if profile.about}
-												<p class="profile-about">{profile.about}</p>
-											{/if}
+										<div class="profile-user">
+											<div class="profile-avatar">
+												<User.Avatar />
+											</div>
+											<div class="profile-info">
+												<User.Name />
+												{#if profile.about}
+													<p class="profile-about">{profile.about}</p>
+												{/if}
+											</div>
 										</div>
 									</User.Root>
+									{#if projectCoords.length > 0}
+										<div class="project-badges">
+											{#each projectCoords as coord}
+												{@const dTag = coord.split(':')[2] ?? coord}
+												<span class="project-badge">{dTag}</span>
+											{/each}
+										</div>
+									{/if}
 								</div>
 							{/each}
 						</div>
@@ -422,12 +446,6 @@
 		border-top: 1px solid #f3f4f6;
 	}
 
-	.author :global([data-user-root]) {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
 	.author :global([data-user-name]) {
 		font-size: 0.875rem;
 		color: #4b5563;
@@ -509,6 +527,152 @@
 		color: #1a1a1a;
 	}
 
+	/* Markdown Content (README-like overview) */
+	.content-section {
+		padding: 2rem;
+	}
+
+	.markdown-content :global(h1) {
+		font-size: 1.875rem;
+		font-weight: 700;
+		color: #1a1a1a;
+		margin: 0 0 1rem 0;
+		line-height: 1.3;
+		border-bottom: 2px solid #e5e5e5;
+		padding-bottom: 0.5rem;
+	}
+
+	.markdown-content :global(h2) {
+		font-size: 1.375rem;
+		font-weight: 600;
+		color: #1a1a1a;
+		margin: 1.75rem 0 0.75rem 0;
+		line-height: 1.3;
+	}
+
+	.markdown-content :global(h3) {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: #374151;
+		margin: 1.5rem 0 0.5rem 0;
+	}
+
+	.markdown-content :global(h4),
+	.markdown-content :global(h5),
+	.markdown-content :global(h6) {
+		font-size: 1rem;
+		font-weight: 600;
+		color: #374151;
+		margin: 1.25rem 0 0.5rem 0;
+	}
+
+	.markdown-content :global(p) {
+		margin: 0 0 1rem 0;
+		line-height: 1.7;
+		color: #374151;
+	}
+
+	.markdown-content :global(ul),
+	.markdown-content :global(ol) {
+		margin: 0 0 1rem 0;
+		padding-left: 1.5rem;
+		color: #374151;
+	}
+
+	.markdown-content :global(li) {
+		margin-bottom: 0.375rem;
+		line-height: 1.6;
+	}
+
+	.markdown-content :global(code) {
+		background: #f3f4f6;
+		border-radius: 4px;
+		padding: 0.125rem 0.375rem;
+		font-family: 'Fira Code', 'Cascadia Code', monospace;
+		font-size: 0.875em;
+		color: #6366f1;
+	}
+
+	.markdown-content :global(pre) {
+		background: #1e1e2e;
+		border-radius: 8px;
+		padding: 1.25rem;
+		overflow-x: auto;
+		margin: 0 0 1rem 0;
+	}
+
+	.markdown-content :global(pre code) {
+		background: none;
+		padding: 0;
+		color: #cdd6f4;
+		font-size: 0.875rem;
+	}
+
+	.markdown-content :global(blockquote) {
+		border-left: 4px solid #6366f1;
+		padding: 0.5rem 1rem;
+		margin: 0 0 1rem 0;
+		background: #eef2ff;
+		border-radius: 0 8px 8px 0;
+	}
+
+	.markdown-content :global(blockquote p) {
+		margin: 0;
+		color: #4b5563;
+		font-style: italic;
+	}
+
+	.markdown-content :global(a) {
+		color: #6366f1;
+		text-decoration: none;
+	}
+
+	.markdown-content :global(a:hover) {
+		text-decoration: underline;
+	}
+
+	.markdown-content :global(hr) {
+		border: none;
+		border-top: 1px solid #e5e5e5;
+		margin: 1.5rem 0;
+	}
+
+	.markdown-content :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 0 0 1rem 0;
+		font-size: 0.9rem;
+	}
+
+	.markdown-content :global(th) {
+		background: #f9fafb;
+		padding: 0.625rem 0.875rem;
+		text-align: left;
+		font-weight: 600;
+		color: #374151;
+		border: 1px solid #e5e5e5;
+	}
+
+	.markdown-content :global(td) {
+		padding: 0.625rem 0.875rem;
+		border: 1px solid #e5e5e5;
+		color: #4b5563;
+	}
+
+	.markdown-content :global(tr:nth-child(even) td) {
+		background: #f9fafb;
+	}
+
+	.markdown-content :global(strong) {
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+
+	.markdown-content :global(em) {
+		font-style: italic;
+		color: #4b5563;
+	}
+
 	.instructions {
 		white-space: pre-wrap;
 		font-family: monospace;
@@ -565,7 +729,7 @@
 		border: 1px solid #e5e5e5;
 	}
 
-	.agent-profile-card :global([data-user-root]) {
+	.profile-user {
 		display: flex;
 		align-items: flex-start;
 		gap: 1rem;
@@ -600,6 +764,22 @@
 		line-height: 1.4;
 	}
 
+	.project-badges {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin-top: 0.75rem;
+	}
+
+	.project-badge {
+		font-size: 0.75rem;
+		background: #dcfce7;
+		color: #16a34a;
+		padding: 0.125rem 0.5rem;
+		border-radius: 9999px;
+		font-weight: 500;
+	}
+
 	/* Feed Tab */
 	.feed-list {
 		display: flex;
@@ -620,12 +800,6 @@
 		align-items: center;
 		gap: 0.75rem;
 		margin-bottom: 0.75rem;
-	}
-
-	.feed-author :global([data-user-root]) {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
 	}
 
 	.feed-avatar {
