@@ -15,6 +15,25 @@
 		filters: [{ kinds: [AGENT_LESSON_KIND as number] }]
 	}));
 
+	/**
+	 * Deduplicated agent definitions: for events sharing the same (pubkey, d-tag),
+	 * only the one with the highest created_at is kept (standard addressable-event rule).
+	 */
+	const dedupedAgents = $derived(
+		(() => {
+			const map = new Map<string, NDKEvent>();
+			for (const event of agentSubscription.events) {
+				const dTag = event.tagValue('d') ?? '';
+				const key = `${event.pubkey}:${dTag}`;
+				const existing = map.get(key);
+				if (!existing || event.created_at! > existing.created_at!) {
+					map.set(key, event);
+				}
+			}
+			return Array.from(map.values());
+		})()
+	);
+
 	// Reactive state for selected lesson (modal)
 	let selectedLesson = $state<NDKEvent | null>(null);
 
@@ -42,7 +61,7 @@
 			class:active={activeTab === 'agents'}
 			onclick={() => (activeTab = 'agents')}
 		>
-			Agent Definitions ({agentSubscription.events.length})
+			Agent Definitions ({dedupedAgents.length})
 		</button>
 		<button
 			class="tab"
@@ -55,14 +74,14 @@
 
 	<main>
 		{#if activeTab === 'agents'}
-			{#if agentSubscription.events.length === 0}
+			{#if dedupedAgents.length === 0}
 				<div class="empty-state">
 					<p>Loading agents...</p>
 					<p class="hint">Searching for kind {AGENT_DEFINITION_KIND} events</p>
 				</div>
 			{:else}
 				<div class="grid agents-grid">
-					{#each agentSubscription.events as event (event.id)}
+					{#each dedupedAgents as event (event.id)}
 						<AgentDefinitionCard {event} />
 					{/each}
 				</div>
